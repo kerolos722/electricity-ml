@@ -180,7 +180,7 @@ st.markdown("""
 # Hugging Face Configuration
 # ==========================================================================
 
-HF_REPO_ID = "saifalaswad/electricity-consumption-model"
+HF_REPO_ID = "kerolos-fady/electricity-ml"
 
 ARTIFACT_SUFFIXES = {
     "selected_features": "selected_features.pkl",
@@ -715,7 +715,7 @@ def page_about():
             <h4>🤗 Hugging Face</h4>
             <p>
             Model artifacts hosted at:<br>
-            <code>saifalaswad/electricity-consumption-model</code>
+            <code>kerolos-fady/electricity-ml</code>
             </p>
         </div>
         """, unsafe_allow_html=True)
@@ -990,7 +990,7 @@ try:
     artifacts = load_artifacts()
 except Exception as e:
     st.error("❌ Couldn't load model artifacts from Hugging Face.")
-    st.error("Make sure the repository 'saifalaswad/electricity-consumption-model' exists.")
+    st.error("Make sure the repository 'kerolos-fady/electricity-ml' exists.")
     st.code(str(e))
     st.stop()
 
@@ -1019,7 +1019,7 @@ st.sidebar.markdown("---")
 st.sidebar.markdown(f"**🕐 Updated:** {datetime.now().strftime('%Y-%m-%d %H:%M')}")
 st.sidebar.markdown("---")
 st.sidebar.markdown("**🤗 Hugging Face**")
-st.sidebar.caption("saifalaswad/electricity-consumption-model")
+st.sidebar.caption("kerolos-fady/electricity-ml")
 
 
 # ==========================================================================
@@ -1425,9 +1425,8 @@ else:
 # Footer
 # ==========================================================================
 
-st.markdown("---")
 st.markdown("""
 <div style="text-align:center;color:#b2bec3;font-size:0.9rem;">
-    ⚡ Smart Energy Predictor v2.0 | ML + Physics-Based Estimation | 🤗 Hugging Face
+Smart Energy Predictor v2.0 | ML + Physics-Based Estimation | <a href="https://electricity-ml-rwh3mx4qle2mvywanehutl.streamlit.app" target="_blank">Live App</a>
 </div>
 """, unsafe_allow_html=True)
