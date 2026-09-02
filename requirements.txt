@@ -1,9 +1,10 @@
 streamlit
 pandas
 numpy
-scikit-learn==1.9.0
+scikit-learn==1.6.1
 joblib
 plotly
 huggingface_hub
 catboost
 xgboost
+joplib==1.5.3
