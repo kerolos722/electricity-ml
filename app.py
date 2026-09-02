@@ -15,8 +15,35 @@ import streamlit as st
 import plotly.graph_objects as go
 import plotly.express as px
 from huggingface_hub import hf_hub_download
+from sklearn.impute import SimpleImputer
 
 warnings.filterwarnings("ignore")
+
+
+# ==========================================================================
+# Backward-Compatibility Patch
+# --------------------------------------------------------------------------
+# These .pkl artifacts were pickled with an OLDER scikit-learn version.
+# Newer scikit-learn's SimpleImputer.transform()/inverse_transform() reads
+# an internal attribute (`_fill_dtype`) that did not exist in older
+# versions, so unpickled old imputers are missing it and raise:
+#   AttributeError: 'SimpleImputer' object has no attribute '_fill_dtype'
+# This patch fills in any missing internal attributes right after loading,
+# based on the object's own already-fitted `statistics_`, so the object
+# behaves correctly under the currently-installed scikit-learn without
+# needing to pin an old, possibly Python-version-incompatible sklearn.
+# ==========================================================================
+def _patch_sklearn_object(obj):
+    if isinstance(obj, SimpleImputer):
+        if not hasattr(obj, "_fill_dtype"):
+            try:
+                obj._fill_dtype = obj.statistics_.dtype
+            except Exception:
+                obj._fill_dtype = np.float64
+        # Other attributes newer sklearn may expect on an older pickle.
+        if not hasattr(obj, "n_features_in_") and hasattr(obj, "statistics_"):
+            obj.n_features_in_ = len(obj.statistics_)
+    return obj
 
 
 # ==========================================================================
@@ -180,7 +207,7 @@ st.markdown("""
 # Hugging Face Configuration
 # ==========================================================================
 
-HF_REPO_ID = "saifalaswad/electricity-consumption-model"
+HF_REPO_ID = "kerolos-fady/electricity-ml"
 
 ARTIFACT_SUFFIXES = {
     "selected_features": "selected_features.pkl",
@@ -314,7 +341,9 @@ def load_artifacts():
                     repo_type="model"
                 )
 
-                artifacts[key] = joblib.load(path)
+                loaded_obj = joblib.load(path)
+                loaded_obj = _patch_sklearn_object(loaded_obj)
+                artifacts[key] = loaded_obj
                 status.write(f"✅ Loaded: {filename}")
 
             except Exception as e:
@@ -715,7 +744,8 @@ def page_about():
             <h4>🤗 Hugging Face</h4>
             <p>
             Model artifacts hosted at:<br>
-            <code>saifalaswad/electricity-consumption-model</code>
+            <code>kerolos-fady/electricity-ml</code><br>
+            by <strong>Kerolos Fady</strong>
             </p>
         </div>
         """, unsafe_allow_html=True)
@@ -990,7 +1020,7 @@ try:
     artifacts = load_artifacts()
 except Exception as e:
     st.error("❌ Couldn't load model artifacts from Hugging Face.")
-    st.error("Make sure the repository 'saifalaswad/electricity-consumption-model' exists.")
+    st.error("Make sure the repository 'kerolos-fady/electricity-ml' exists.")
     st.code(str(e))
     st.stop()
 
@@ -1019,7 +1049,7 @@ st.sidebar.markdown("---")
 st.sidebar.markdown(f"**🕐 Updated:** {datetime.now().strftime('%Y-%m-%d %H:%M')}")
 st.sidebar.markdown("---")
 st.sidebar.markdown("**🤗 Hugging Face**")
-st.sidebar.caption("saifalaswad/electricity-consumption-model")
+st.sidebar.caption("kerolos-fady/electricity-ml")
 
 
 # ==========================================================================
