@@ -7,4 +7,4 @@ plotly
 huggingface_hub
 catboost
 xgboost
-joplib==1.5.3
+joblib==1.5.3
